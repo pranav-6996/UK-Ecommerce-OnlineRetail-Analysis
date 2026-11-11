@@ -1,0 +1,88 @@
+Net Sales =
+SUM ( FactSales[NetSales] )
+
+Total Sales (Gross) =
+SUM ( FactSales[TotalSales] )
+
+Returns Signed =
+SUM ( FactSales[ReturnsAmt] )
+
+Total Returns (Absolute) =
+SUMX ( FactSales, ABS ( FactSales[ReturnsAmt] ) )
+
+Total Quantity =
+SUM ( FactSales[Quantity] )
+
+Gross Quantity Sold =
+CALCULATE ( SUM ( FactSales[Quantity] ), FactSales[Quantity] > 0 )
+
+Returned Quantity =
+CALCULATE ( SUMX ( FactSales, ABS ( FactSales[Quantity] ) ), FactSales[Quantity] < 0 )
+
+Customer Count =
+DISTINCTCOUNT ( DimCustomer[CustomerID] )
+
+Orders Count =
+CALCULATE (
+    DISTINCTCOUNT ( FactSales[InvoiceNo] ),
+    FILTER ( VALUES ( FactSales[InvoiceNo] ), LEFT ( FactSales[InvoiceNo], 1 ) <> "C" )
+)
+
+Credit Invoice Count =
+CALCULATE (
+    DISTINCTCOUNT ( FactSales[InvoiceNo] ),
+    FILTER ( VALUES ( FactSales[InvoiceNo] ), LEFT ( FactSales[InvoiceNo], 1 ) = "C" )
+)
+
+Product Count =
+DISTINCTCOUNT ( DimProduct[ProductKey] )
+
+Average Unit Price =
+DIVIDE ( [Total Sales (Gross)], [Gross Quantity Sold] )
+
+Average Net Sales per Order =
+DIVIDE ( [Net Sales], [Orders Count] )
+
+Net Sales MTD =
+CALCULATE ( [Net Sales], DATESMTD ( DimDate[Date] ) )
+
+Net Sales QTD =
+CALCULATE ( [Net Sales], DATESQTD ( DimDate[Date] ) )
+
+Net Sales YTD =
+CALCULATE ( [Net Sales], DATESYTD ( DimDate[Date] ) )
+
+Net Sales Prev Period (Month) =
+CALCULATE ( [Net Sales], DATEADD ( DimDate[Date], -1, MONTH ) )
+
+Net Sales MoM % =
+DIVIDE (
+    [Net Sales] - [Net Sales Prev Period (Month)],
+    [Net Sales Prev Period (Month)]
+)
+
+Net Sales Previous Year =
+CALCULATE ( [Net Sales], DATEADD ( DimDate[Date], -1, YEAR ) )
+
+Net Sales YoY % =
+DIVIDE ( [Net Sales] - [Net Sales Previous Year], [Net Sales Previous Year] )
+
+Product Rank =
+RANKX (
+    ALLSELECTED ( DimProduct[ProductKey] ),
+    [Net Sales],
+    ,
+    DESC,
+    DENSE
+)
+
+Customer Lifetime Net Sales =
+CALCULATE ( [Net Sales], REMOVEFILTERS ( DimDate ) )
+
+Dashboard Title =
+VAR FirstYear = MINX ( ALLSELECTED ( DimDate ), DimDate[Year] )
+VAR LastYear  = MAXX ( ALLSELECTED ( DimDate ), DimDate[Year] )
+RETURN
+    "Online Retail Sales Dashboard"
+        & UNICHAR ( 10 )
+        & FORMAT ( FirstYear, "0" ) & "–" & FORMAT ( LastYear, "0" )

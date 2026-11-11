@@ -1,0 +1,15 @@
+DimDate =
+VAR FirstFactDate = MINX ( ALL ( FactSales ), FactSales[InvoiceDate] )
+VAR LastFactDate  = MAXX ( ALL ( FactSales ), FactSales[InvoiceDate] )
+VAR StartDate = COALESCE ( FirstFactDate, DATE ( 2010, 1, 1 ) )
+VAR EndDate   = COALESCE ( LastFactDate, StartDate )
+RETURN
+    ADDCOLUMNS (
+        CALENDAR ( StartDate, EndDate ),
+        "Year", YEAR ( [Date] ),
+        "MonthNo", MONTH ( [Date] ),
+        "Month", FORMAT ( [Date], "MMM" ),
+        "MonthYear", FORMAT ( [Date], "MMM yyyy" ),
+        "YearMonthSort", YEAR ( [Date] ) * 100 + MONTH ( [Date] ),
+        "Quarter", "Q" & QUARTER ( [Date] )
+    )

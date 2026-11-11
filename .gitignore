@@ -1,0 +1,14 @@
+*.csv
+*.xlsx
+*.parquet
+*.bak
+*.log
+.env
+.env.*
+!.env.example
+*.udl
+.DS_Store
+Thumbs.db
+Desktop.ini
+.vscode/
+.idea/
